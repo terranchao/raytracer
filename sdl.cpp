@@ -7,19 +7,16 @@
 
 #include "sdl.hpp"
 
-static constexpr size_t DISPLAY_WIDTH = 1366;
-static constexpr size_t DISPLAY_HEIGHT = 768;
-
 class SDLError : public std::runtime_error
 {
 public:
     SDLError(const std::string& what = "") : std::runtime_error(what) {}
 };
 
-SDL::SDL()
+SDL::SDL(const size_t w, const size_t h)
 {
-    width_in_bytes = DISPLAY_WIDTH * sizeof(uint32_t);
-    framebuffer = (uint32_t*)malloc(DISPLAY_HEIGHT*width_in_bytes);
+    width_in_bytes = w * sizeof(uint32_t);
+    framebuffer = (uint32_t*)malloc(h*width_in_bytes);
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -30,8 +27,8 @@ SDL::SDL()
         "raytracer",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        DISPLAY_WIDTH,
-        DISPLAY_HEIGHT,
+        w,
+        h,
         SDL_WINDOW_SHOWN
     );
     if (!window)
@@ -53,8 +50,8 @@ SDL::SDL()
         renderer,
         SDL_PIXELFORMAT_ARGB8888 , // fast
         SDL_TEXTUREACCESS_STREAMING,
-        DISPLAY_WIDTH,
-        DISPLAY_HEIGHT
+        w,
+        h
     );
     if (!texture)
     {
@@ -87,32 +84,31 @@ SDL::~SDL()
     SDL_Quit();
 }
 
-void SDL::loop()
+bool SDL::quit()
 {
-    while (true)
+    SDL_Event e;
+    while (SDL_PollEvent(&e))
     {
-        /* Events */
-        SDL_Event e;
-        while (SDL_PollEvent(&e))
+        if (
+            (e.type == SDL_QUIT) ||
+            ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_ESCAPE))
+        )
         {
-            if (
-                (e.type == SDL_QUIT) ||
-                ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_ESCAPE))
-            )
-            {
-                return;
-            }
+            return true;
         }
-
-        /* Render */
-        SDL_UpdateTexture(
-            texture,
-            nullptr,
-            framebuffer,
-            width_in_bytes
-        );
-        SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-        SDL_RenderPresent(renderer);
     }
+    return false;
+}
+
+void SDL::render()
+{
+    SDL_UpdateTexture(
+        texture,
+        nullptr,
+        framebuffer,
+        width_in_bytes
+    );
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
 }

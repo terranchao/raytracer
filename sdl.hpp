@@ -7,15 +7,16 @@
 class SDL
 {
 private:
-    SDL_Window *window;
-    SDL_Renderer *renderer;
-    SDL_Texture *texture;
-    uint32_t *framebuffer;
-    size_t width_in_bytes;
+    SDL_Window *window = nullptr;
+    SDL_Renderer *renderer = nullptr;
+    SDL_Texture *texture = nullptr;
+    uint32_t *framebuffer = nullptr;
+    size_t width_in_bytes = 0;
 public:
-    SDL();
+    SDL(const size_t w, const size_t h);
     ~SDL();
-    void loop();
+    bool quit();
+    void render();
 };
 
 #endif // SDL_HPP

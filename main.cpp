@@ -2,18 +2,18 @@
 #include <exception>
 #include <iostream>
 
-#include "sdl.hpp"
+#include "scene.hpp"
 
 int main()
 {
     try
     {
-        SDL sdl;
-        sdl.loop();
+        Scene scene;
+        scene.run();
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << '\n';
+        std::cerr << e.what() << std::endl;
     }
     return 0;
 }
