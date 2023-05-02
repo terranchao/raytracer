@@ -1,17 +1,21 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "sdl.hpp"
+#include <cstdint>
 
-#define SCREEN_WIDTH   1366
-#define SCREEN_HEIGHT  768
+#include "sdl.hpp"
+#include "vec3.hpp"
+
+extern const size_t SCREEN_WIDTH;
+extern const size_t SCREEN_HEIGHT;
 
 class Scene
 {
 private:
     SDL sdl{SCREEN_WIDTH, SCREEN_HEIGHT};
+    uint32_t cast(const Vec3& dir);
+    void write_frame();
 public:
-    Scene();
     void run();
 };
 

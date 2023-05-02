@@ -10,9 +10,9 @@ private:
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
     SDL_Texture *texture = nullptr;
-    uint32_t *framebuffer = nullptr;
     size_t width_in_bytes = 0;
 public:
+    uint32_t *framebuffer = nullptr;
     SDL(const size_t w, const size_t h);
     ~SDL();
     bool quit();
