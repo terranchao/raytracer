@@ -10,21 +10,22 @@
 
 static Sphere g_spheres[] = {
 //      Center                      Radius      Color
-    {   {   0.f, -60.f, -200.f},    60.f,       0xffcc4488    },
-    {   {-160.f, 120.f, -260.f},    80.f,       0xff88cc44    },
-    {   { 100.f,  20.f, -280.f},    90.f,       0xff4488cc    },
+    {   {   0.f, -60.f, -400.f},    60.f,       0xffcc4488    },
+    {   {-160.f, 120.f, -460.f},    80.f,       0xff88cc44    },
+    {   { 100.f,  20.f, -480.f},    90.f,       0xff4488cc    },
 };
 static constexpr size_t NUM_SPHERES = sizeof(g_spheres)/sizeof(Sphere);
 
 static const Vec3 CAMERA{0.f, 0.f, 0.f};
-static constexpr float FOV = (M_PI/2.f);
-
+static constexpr float FOV = (M_PI/3.f);
 extern constexpr size_t SCREEN_WIDTH = 1366;
 extern constexpr size_t SCREEN_HEIGHT = 768;
 static constexpr size_t NUM_PIXELS = (SCREEN_WIDTH*SCREEN_HEIGHT);
 static constexpr size_t SCREEN_WIDTH_HALF = (SCREEN_WIDTH/2);
 static constexpr size_t SCREEN_HEIGHT_HALF = (SCREEN_HEIGHT/2);
-static constexpr float ASPECT_RATIO = (SCREEN_WIDTH/SCREEN_HEIGHT);
+static constexpr float RAY_X_OFFSET = (0.5f-SCREEN_WIDTH_HALF);
+static constexpr float RAY_Y_OFFSET = (SCREEN_HEIGHT_HALF-0.5f);
+static constexpr float RAY_Z = -(float)SCREEN_HEIGHT_HALF/tan(FOV/2);
 static constexpr uint32_t BACKGROUND_COLOR = 0xff000000;
 
 uint32_t Scene::cast(const Vec3& dir)
@@ -60,9 +61,9 @@ void Scene::write_frame()
     for (size_t i = 0; i < NUM_PIXELS; i++)
     {
         const Vec3 ray{
-            ((i%SCREEN_WIDTH)+0.5f)-SCREEN_WIDTH_HALF,
-            SCREEN_HEIGHT_HALF-((i/SCREEN_WIDTH)+0.5f),
-            -(float)SCREEN_HEIGHT_HALF/tan(FOV/2.f)
+            (i%SCREEN_WIDTH)+RAY_X_OFFSET,
+            RAY_Y_OFFSET-(i/SCREEN_WIDTH),
+            RAY_Z
         };
         sdl.framebuffer[i] = cast(ray.normalized());
     }
