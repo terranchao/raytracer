@@ -1,4 +1,8 @@
 
+#ifdef DEBUG
+#include <chrono>
+#include <iostream>
+#endif
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -58,6 +62,12 @@ uint32_t Scene::cast(const Vec3& dir)
 void Scene::write_frame()
 {
     /* Generate camera rays */
+#ifdef DEBUG
+    const auto start = std::chrono::steady_clock::now();
+#endif
+#ifdef OPENMP
+    #pragma omp parallel for
+#endif
     for (size_t i = 0; i < NUM_PIXELS; i++)
     {
         const Vec3 ray{
@@ -67,6 +77,14 @@ void Scene::write_frame()
         };
         sdl.framebuffer[i] = cast(ray.normalized());
     }
+#ifdef DEBUG
+#ifdef OPENMP
+    #pragma omp barrier
+#endif
+    std::cerr << std::chrono::duration_cast<std::chrono::nanoseconds>(
+        std::chrono::steady_clock::now() - start
+    ).count() << " ns" << std::endl;
+#endif
 }
 
 void Scene::run()

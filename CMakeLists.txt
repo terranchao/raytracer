@@ -12,9 +12,10 @@ endif()
 file(GLOB SOURCES *.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME}
-    -lSDL2
-)
+find_package(OpenMP COMPONENTS CXX)
+if(OPENMP_FOUND)
+    add_compile_definitions(OPENMP)
+endif()
 
 target_compile_options(${PROJECT_NAME}
 PRIVATE
@@ -23,4 +24,10 @@ PRIVATE
     -Werror
     -Wextra
     -Wpedantic
+)
+
+target_link_libraries(${PROJECT_NAME}
+PRIVATE
+    -lSDL2
+    $<$<BOOL:${OpenMP_CXX_FOUND}>:OpenMP::OpenMP_CXX>
 )
