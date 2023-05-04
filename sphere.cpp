@@ -1,14 +1,13 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdint>
 
 #include "sphere.hpp"
 #include "vec3.hpp"
 
 Sphere::Sphere(
-    const Vec3& _center, const float& _radius, const uint32_t& _color
-) : center(_center), radius(std::max(0.f, _radius)), color(_color)
+    const Vec3& _center, const float& _radius, const Surface& _surface
+) : center(_center), radius(std::max(0.f, _radius)), surface(_surface)
 {
     r2 = (radius*radius);
 }

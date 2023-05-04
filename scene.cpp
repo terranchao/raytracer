@@ -7,18 +7,23 @@
 #include <cstdint>
 #include <limits>
 
+#include "light.hpp"
 #include "scene.hpp"
 #include "sdl.hpp"
 #include "sphere.hpp"
+#include "surface.hpp"
 #include "vec3.hpp"
 
 static const Sphere g_spheres[] = {
-//      Center                      Radius      Color
-    {   {   0.f, -60.f, -400.f},    60.f,       0xffcc4488    },
-    {   {-160.f, 120.f, -460.f},    80.f,       0xff88cc44    },
-    {   { 100.f,  20.f, -480.f},    90.f,       0xff4488cc    },
+//      Center                      Radius      Surface
+    {   {   0.f, -60.f, -400.f},    60.f,       {0xffcc4488}    },
+    {   {-160.f, 120.f, -460.f},    80.f,       {0xff88cc44}    },
+    {   { 100.f,  20.f, -480.f},    90.f,       {0xff4488cc}    },
 };
-static constexpr size_t NUM_SPHERES = sizeof(g_spheres)/sizeof(Sphere);
+static const Light g_lights[] = {
+//      Position                Intensity
+    {   {   0.f, 200.f, 0.f},   1.2f        },
+};
 
 static const Vec3 CAMERA{0.f, 0.f, 0.f};
 static constexpr float FOV = (M_PI/3.f);
@@ -30,18 +35,17 @@ static constexpr size_t SCREEN_HEIGHT_HALF = (SCREEN_HEIGHT/2);
 static constexpr float RAY_X_OFFSET = (0.5f-SCREEN_WIDTH_HALF);
 static constexpr float RAY_Y_OFFSET = (SCREEN_HEIGHT_HALF-0.5f);
 static constexpr float RAY_Z = -(float)SCREEN_HEIGHT_HALF/tan(FOV/2);
-static constexpr uint32_t BACKGROUND_COLOR = 0xff000000;
+static constexpr uint32_t BACKGROUND_COLOR = 0xff222211;
 
 uint32_t Scene::cast(const Vec3& dir)
 {
-    /* Hit closest sphere or nothing */
-    const Sphere *nearest = nullptr;
+    /* Hit nearest sphere (or nothing) */
     float min_distance = std::numeric_limits<float>::max();
+    const Sphere *nearest = nullptr;
     for (const auto& sphere : g_spheres)
     {
         float distance;
         if (!sphere.is_intersected_by(CAMERA, dir, distance)) continue;
-
         if (distance < min_distance)
         {
             min_distance = distance;
@@ -53,7 +57,20 @@ uint32_t Scene::cast(const Vec3& dir)
         return BACKGROUND_COLOR;
     }
 
-    return nearest->color;
+    /* Compute color */
+    const Vec3 intersect = CAMERA + (dir*min_distance);
+    const Vec3 normal = (intersect-nearest->center).normalized();
+    float diffuse_intensity = 0.f;
+    for (const auto& light : g_lights)
+    {
+        const Vec3 light_dir = (light.position-intersect).normalized();
+        const float diffuse_magnitude = (light_dir*normal);
+        if (diffuse_magnitude > 0.f)
+        {
+            diffuse_intensity += (light.intensity*diffuse_magnitude);
+        }
+    }
+    return nearest->surface.get_color(diffuse_intensity);
 }
 
 static inline size_t calculate_row_offset(
