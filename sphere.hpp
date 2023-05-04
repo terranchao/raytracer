@@ -8,10 +8,10 @@
 struct Sphere
 {
 private:
-    float r2 = 0;
+    float r2 = 0.f;
 public:
     Vec3 center;
-    float radius = 0;
+    float radius = 0.f;
     uint32_t color = 0xff000000; // Pixel format: ARGB
     Sphere(const Vec3& _center, const float& _radius, const uint32_t& _color);
     bool is_intersected_by(
