@@ -15,14 +15,15 @@
 #include "vec3.hpp"
 
 static const Sphere g_spheres[] = {
-// Center                   Radius Color       Diffuse Specular Shininess
-  {{   0.f, -60.f, -400.f}, 60.f, {0xffcc4488, 1.f,    0.f,     0.f         }},
-  {{-160.f, 120.f, -460.f}, 80.f, {0xff88cc44, 1.f,    0.f,     0.f         }},
-  {{ 100.f,  20.f, -480.f}, 90.f, {0xff4488cc, 1.f,    0.f,     0.f         }},
+// Center                   Radius   Color       Diffuse  Specular  Shininess
+  {{ -20.f, -60.f, -300.f},   60.f, {0xffcc4488,     1.f,      0.f,       0.f}},
+  {{-160.f, 120.f, -550.f},   80.f, {0xff88cc44,     1.f,      0.f,       0.f}},
+  {{ 100.f,  20.f, -400.f},   90.f, {0xff4488cc,     1.f,     1.6f,      41.f}},
 };
 static const Light g_lights[] = {
-//      Position                Intensity
-    {   {   0.f, 200.f, 0.f},   1.2f        },
+//      Position                 Intensity
+    {   { -20.f, 300.f,  -20.f},      1.2f  },
+    {   { 200.f, 200.f, -350.f},       .8f  },
 };
 
 static const Vec3 CAMERA{0.f, 0.f, 0.f};
@@ -57,10 +58,10 @@ uint32_t Scene::cast(const Vec3& dir)
         return BACKGROUND_COLOR;
     }
 
-    /* Compute color */
+    /* Compute color: Use Phong reflection model */
     const Vec3 intersect = CAMERA + (dir*min_distance);
     const Vec3 normal = (intersect-nearest->center).normalized();
-    float diffuse_intensity = 0.f;
+    float diffuse_intensity = 0.f, specular_intensity = 0.f;
     for (const auto& light : g_lights)
     {
         // Diffuse
@@ -70,8 +71,22 @@ uint32_t Scene::cast(const Vec3& dir)
         {
             diffuse_intensity += (light.intensity*diffuse_magnitude);
         }
+
+        // Specular
+        if (nearest->surface.specular_constant > 0.f)
+        {
+            const Vec3 light_reflect =
+                (normal * (2.f*diffuse_magnitude)) - light_dir;
+            const float specular_magnitude = powf(
+                light_reflect*(-dir), nearest->surface.shininess_constant
+            );
+            if (specular_magnitude > 0.f)
+            {
+                specular_intensity += (light.intensity*specular_magnitude);
+            }
+        }
     }
-    return nearest->surface.get_color(diffuse_intensity);
+    return nearest->surface.get_color(diffuse_intensity, specular_intensity);
 }
 
 static inline size_t calculate_row_offset(

@@ -15,7 +15,9 @@ struct Surface
         const float& _specular_constant,
         const float& _shininess_constant
     );
-    uint32_t get_color(const float& diffuse_intensity) const;
+    uint32_t get_color(
+        const float& diffuse_intensity, const float& specular_intensity
+    ) const;
 };
 
 #endif // SURFACE_HPP

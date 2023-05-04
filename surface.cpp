@@ -15,9 +15,14 @@ Surface::Surface(
     shininess_constant(_shininess_constant)
 {}
 
-uint32_t Surface::get_color(const float& diffuse_intensity) const
+uint32_t Surface::get_color(
+    const float& diffuse_intensity, const float& specular_intensity
+) const
 {
-    const float scale = (diffuse_constant*diffuse_intensity);
+    const float scale = (
+        (diffuse_constant*diffuse_intensity) +
+        (specular_constant*specular_intensity)
+    );
     uint32_t r = (base_color & 0x00ff0000) >> 16;
     uint32_t g = (base_color & 0x0000ff00) >> 8;
     uint32_t b = (base_color & 0x000000ff);
