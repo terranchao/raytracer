@@ -22,7 +22,7 @@ static constexpr size_t NUM_SPHERES = sizeof(g_spheres)/sizeof(Sphere);
 
 static const Vec3 CAMERA{0.f, 0.f, 0.f};
 static constexpr float FOV = (M_PI/3.f);
-extern constexpr size_t SCREEN_WIDTH = 1366;
+extern constexpr size_t SCREEN_WIDTH = 1024;
 extern constexpr size_t SCREEN_HEIGHT = 768;
 static constexpr size_t NUM_PIXELS = (SCREEN_WIDTH*SCREEN_HEIGHT);
 static constexpr size_t SCREEN_WIDTH_HALF = (SCREEN_WIDTH/2);
@@ -59,6 +59,13 @@ uint32_t Scene::cast(const Vec3& dir)
     }
 }
 
+static inline size_t calculate_row_offset(
+    const size_t& row, const size_t& screen_width
+)
+{
+    return (screen_width == 1024) ? (row<<10) : (row*screen_width);
+}
+
 void Scene::write_frame()
 {
     /* Generate camera rays */
@@ -68,14 +75,15 @@ void Scene::write_frame()
 #ifdef OPENMP
     #pragma omp parallel for
 #endif
-    for (size_t i = 0; i < NUM_PIXELS; i++)
+    for (size_t row = 0; row < SCREEN_HEIGHT; row++)
     {
-        const Vec3 ray{
-            (i%SCREEN_WIDTH)+RAY_X_OFFSET,
-            RAY_Y_OFFSET-(i/SCREEN_WIDTH),
-            RAY_Z
-        };
-        sdl.framebuffer[i] = cast(ray.normalized());
+        const size_t row_offset = calculate_row_offset(row, SCREEN_WIDTH);
+        for (size_t col = 0; col < SCREEN_WIDTH; col++)
+        {
+            sdl.framebuffer[row_offset+col] = cast(
+                Vec3{(col+RAY_X_OFFSET), (RAY_Y_OFFSET-row), RAY_Z}.normalized()
+            );
+        }
     }
 #ifdef DEBUG
 #ifdef OPENMP
