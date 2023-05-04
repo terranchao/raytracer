@@ -15,10 +15,10 @@
 #include "vec3.hpp"
 
 static const Sphere g_spheres[] = {
-//      Center                      Radius      Surface
-    {   {   0.f, -60.f, -400.f},    60.f,       {0xffcc4488}    },
-    {   {-160.f, 120.f, -460.f},    80.f,       {0xff88cc44}    },
-    {   { 100.f,  20.f, -480.f},    90.f,       {0xff4488cc}    },
+// Center                   Radius Color       Diffuse Specular Shininess
+  {{   0.f, -60.f, -400.f}, 60.f, {0xffcc4488, 1.f,    0.f,     0.f         }},
+  {{-160.f, 120.f, -460.f}, 80.f, {0xff88cc44, 1.f,    0.f,     0.f         }},
+  {{ 100.f,  20.f, -480.f}, 90.f, {0xff4488cc, 1.f,    0.f,     0.f         }},
 };
 static const Light g_lights[] = {
 //      Position                Intensity
@@ -63,6 +63,7 @@ uint32_t Scene::cast(const Vec3& dir)
     float diffuse_intensity = 0.f;
     for (const auto& light : g_lights)
     {
+        // Diffuse
         const Vec3 light_dir = (light.position-intersect).normalized();
         const float diffuse_magnitude = (light_dir*normal);
         if (diffuse_magnitude > 0.f)
