@@ -21,9 +21,3 @@ Vec3 Vec3::normalized() const
     const float L = (1.f/sqrt((x*x)+(y*y)+(z*z)));
     return {(L*x), (L*y), (L*z)};
 }
-
-float Vec3::distance_to(const Vec3& v) const
-{
-    const Vec3 tmp = *this - v;
-    return sqrt((tmp.x*tmp.x)+(tmp.y*tmp.y)+(tmp.z*tmp.z));
-}

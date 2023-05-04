@@ -8,7 +8,6 @@ struct Vec3
     Vec3 operator-(const Vec3& v) const;
     float operator*(const Vec3& v) const;
     Vec3 normalized() const;
-    float distance_to(const Vec3& v) const;
 };
 
 #endif // VEC3_HPP

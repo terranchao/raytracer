@@ -12,7 +12,7 @@
 #include "sphere.hpp"
 #include "vec3.hpp"
 
-static Sphere g_spheres[] = {
+static const Sphere g_spheres[] = {
 //      Center                      Radius      Color
     {   {   0.f, -60.f, -400.f},    60.f,       0xffcc4488    },
     {   {-160.f, 120.f, -460.f},    80.f,       0xff88cc44    },
@@ -35,28 +35,25 @@ static constexpr uint32_t BACKGROUND_COLOR = 0xff000000;
 uint32_t Scene::cast(const Vec3& dir)
 {
     /* Hit closest sphere or nothing */
-    int nearest = -1;
+    const Sphere *nearest = nullptr;
     float min_distance = std::numeric_limits<float>::max();
-    for (size_t i = 0; i < NUM_SPHERES; i++)
+    for (const auto& sphere : g_spheres)
     {
-        if (!g_spheres[i].is_intersected_by(CAMERA, dir)) continue;
+        float distance;
+        if (!sphere.is_intersected_by(CAMERA, dir, distance)) continue;
 
-        const float distance =
-            CAMERA.distance_to(g_spheres[i].center) - g_spheres[i].radius;
         if (distance < min_distance)
         {
             min_distance = distance;
-            nearest = (int)i;
+            nearest = &sphere;
         }
     }
-    if (nearest > -1)
-    {
-        return g_spheres[nearest].color;
-    }
-    else
+    if (!nearest)
     {
         return BACKGROUND_COLOR;
     }
+
+    return nearest->color;
 }
 
 static inline size_t calculate_row_offset(
