@@ -16,14 +16,15 @@
 
 static const Sphere g_spheres[] = {
 // Center                   Radius   Color       Diffuse  Specular  Shininess
-  {{ -20.f, -60.f, -300.f},   60.f, {0xffcc4488,     1.f,      0.f,       0.f}},
-  {{-160.f, 120.f, -550.f},   80.f, {0xff88cc44,     1.f,      0.f,       0.f}},
-  {{ 100.f,  20.f, -400.f},   90.f, {0xff4488cc,     1.f,     1.6f,      41.f}},
+  {{ -20.f, -90.f, -480.f},  110.f, {0xffcc4488,     1.f,      0.f,       0.f}},
+  {{ 130.f,   0.f, -460.f},   60.f, {0xff4488cc,     1.f,     1.2f,      61.f}},
+  {{-200.f,   0.f, -550.f},   90.f, {0xff88cc44,     1.f,      0.f,       0.f}},
+  {{ -30.f,  70.f, -510.f},   30.f, {0xff8484cc,     1.f,     1.2f,      41.f}},
 };
 static const Light g_lights[] = {
 //      Position                 Intensity
-    {   { -20.f, 300.f,  -20.f},      1.2f  },
-    {   { 200.f, 200.f, -350.f},       .8f  },
+    {   {   0.f, 300.f,  -50.f},      1.2f  },
+    {   { 200.f, 140.f, -450.f},       .9f  },
 };
 
 static const Vec3 CAMERA{0.f, 0.f, 0.f};
@@ -64,8 +65,23 @@ uint32_t Scene::cast(const Vec3& dir)
     float diffuse_intensity = 0.f, specular_intensity = 0.f;
     for (const auto& light : g_lights)
     {
-        // Diffuse
         const Vec3 light_dir = (light.position-intersect).normalized();
+
+        // Shadows - Ignore light computation if there is an object in the way.
+        bool shadow = false;
+        for (const auto& sphere : g_spheres)
+        {
+            if (nearest == &sphere) continue;
+            float unused;
+            if (sphere.is_intersected_by(intersect, light_dir, unused))
+            {
+                shadow = true;
+                break;
+            }
+        }
+        if (shadow) continue;
+
+        // Diffuse
         const float diffuse_magnitude = (light_dir*normal);
         if (diffuse_magnitude > 0.f)
         {
