@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL.h>
 #include <cstdint>
+#include <ncurses.h>
 #include <stdexcept>
 #include <string>
 
@@ -57,10 +58,17 @@ SDL::SDL(const size_t w, const size_t h)
     {
         throw SDLError("Unable to create texture");
     }
+
+    /* ncurses */
+    initscr();
+    curs_set(0);
 }
 
 SDL::~SDL()
 {
+    /* ncurses */
+    endwin();
+
     if (texture)
     {
         SDL_DestroyTexture(texture);
@@ -111,4 +119,20 @@ void SDL::render()
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
+}
+
+void SDL::start_fps_count()
+{
+    fps_counter = SDL_GetPerformanceCounter();
+}
+
+void SDL::show_fps_count()
+{
+    static const int fps_row = getmaxy(stdscr)-1;
+    static const float counts_per_second = (float)SDL_GetPerformanceFrequency();
+    mvprintw(
+        fps_row, 1, "FPS: %.0f",
+        counts_per_second/(SDL_GetPerformanceCounter()-fps_counter)
+    );
+    refresh();
 }

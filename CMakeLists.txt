@@ -29,5 +29,6 @@ PRIVATE
 target_link_libraries(${PROJECT_NAME}
 PRIVATE
     -lSDL2
+    -lncurses
     $<$<BOOL:${OpenMP_CXX_FOUND}>:OpenMP::OpenMP_CXX>
 )

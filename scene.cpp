@@ -1,8 +1,4 @@
 
-#ifdef DEBUG
-#include <chrono>
-#include <iostream>
-#endif
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -115,11 +111,8 @@ static inline size_t calculate_row_offset(
 void Scene::write_frame()
 {
     /* Generate camera rays */
-#ifdef DEBUG
-    const auto start = std::chrono::steady_clock::now();
-#endif
 #ifdef OPENMP
-    #pragma omp parallel for
+#pragma omp parallel for
 #endif
     for (size_t row = 0; row < SCREEN_HEIGHT; row++)
     {
@@ -131,22 +124,16 @@ void Scene::write_frame()
             );
         }
     }
-#ifdef DEBUG
-#ifdef OPENMP
-    #pragma omp barrier
-#endif
-    std::cerr << std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now() - start
-    ).count() << " ns" << std::endl;
-#endif
 }
 
 void Scene::run()
 {
     while (true)
     {
-        if (sdl.quit()) return;
+        sdl.start_fps_count();
+        if (sdl.quit()) break;
         write_frame();
         sdl.render();
+        sdl.show_fps_count();
     }
 }
