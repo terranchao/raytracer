@@ -13,9 +13,9 @@
 static const Sphere g_spheres[] = {
 // Center                   Radius   Color       Diffuse  Specular  Shininess
   {{ -20.f, -90.f, -480.f},  110.f, {0xffcc4488,     1.f,      0.f,       0.f}},
-  {{ 130.f,   0.f, -460.f},   60.f, {0xff4488cc,     1.f,     1.2f,      61.f}},
+  {{ 130.f,   0.f, -460.f},   60.f, {0xff4488cc,    1.2f,      6.f,      61.f}},
   {{-200.f,   0.f, -550.f},   90.f, {0xff88cc44,     1.f,      0.f,       0.f}},
-  {{ -30.f,  70.f, -510.f},   30.f, {0xff8484cc,     1.f,     1.2f,      41.f}},
+  {{ -30.f,  70.f, -510.f},   30.f, {0xff8484cc,    1.2f,      6.f,      61.f}},
 };
 static const Light g_lights[] = {
 //      Position                 Intensity
@@ -34,16 +34,22 @@ static constexpr float RAY_X_OFFSET = (0.5f-SCREEN_WIDTH_HALF);
 static constexpr float RAY_Y_OFFSET = (SCREEN_HEIGHT_HALF-0.5f);
 static constexpr float RAY_Z = -(float)SCREEN_HEIGHT_HALF/tan(FOV/2);
 static constexpr uint32_t BACKGROUND_COLOR = 0xff222211;
+static constexpr int MAX_REFLECTIONS = 2;
 
-uint32_t Scene::cast(const Vec3& dir)
+static uint32_t cast(const Vec3& origin, const Vec3& dir, int depth = 0)
 {
+    if (depth > MAX_REFLECTIONS)
+    {
+        return BACKGROUND_COLOR;
+    }
+
     /* Hit nearest sphere (or nothing) */
     float min_distance = std::numeric_limits<float>::max();
     const Sphere *nearest = nullptr;
     for (const auto& sphere : g_spheres)
     {
         float distance;
-        if (!sphere.is_intersected_by(CAMERA, dir, distance)) continue;
+        if (!sphere.is_intersected_by(origin, dir, distance)) continue;
         if (distance < min_distance)
         {
             min_distance = distance;
@@ -55,8 +61,8 @@ uint32_t Scene::cast(const Vec3& dir)
         return BACKGROUND_COLOR;
     }
 
-    /* Compute color: Use Phong reflection model */
-    const Vec3 intersect = CAMERA + (dir*min_distance);
+    /* Phong reflection model: Compute lighting */
+    const Vec3 intersect = origin + (dir*min_distance);
     const Vec3 normal = (intersect-nearest->center).normalized();
     float diffuse_intensity = 0.f, specular_intensity = 0.f;
     for (const auto& light : g_lights)
@@ -87,10 +93,9 @@ uint32_t Scene::cast(const Vec3& dir)
         // Specular
         if (nearest->surface.specular_constant > 0.f)
         {
-            const Vec3 light_reflect =
-                (normal * (2.f*diffuse_magnitude)) - light_dir;
+            const Vec3 light_reflect_dir = light_dir.reflected(normal);
             const float specular_magnitude = powf(
-                light_reflect*(-dir), nearest->surface.shininess_constant
+                light_reflect_dir*dir, nearest->surface.shininess_constant
             );
             if (specular_magnitude > 0.f)
             {
@@ -98,7 +103,21 @@ uint32_t Scene::cast(const Vec3& dir)
             }
         }
     }
-    return nearest->surface.get_color(diffuse_intensity, specular_intensity);
+
+    /* Compute color */
+    uint32_t blend_color = nearest->surface.base_color;
+    if (nearest->surface.specular_constant > 0.f)
+    {
+        // Reflections
+        blend_color = cast(
+            intersect, dir.reflected(normal), depth+1
+        );
+    }
+    return nearest->surface.get_color(
+        blend_color,
+        diffuse_intensity,
+        specular_intensity
+    );
 }
 
 static inline size_t calculate_row_offset(
@@ -120,6 +139,7 @@ void Scene::write_frame()
         for (size_t col = 0; col < SCREEN_WIDTH; col++)
         {
             sdl.framebuffer[row_offset+col] = cast(
+                CAMERA,
                 Vec3{(col+RAY_X_OFFSET), (RAY_Y_OFFSET-row), RAY_Z}.normalized()
             );
         }

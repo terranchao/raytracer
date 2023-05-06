@@ -11,6 +11,7 @@ struct Vec3
     float operator*(const Vec3& v) const;
     Vec3 operator*(const float& s) const;
     Vec3 normalized() const;
+    Vec3 reflected(const Vec3& normal) const;
 };
 
 #endif // VEC3_HPP

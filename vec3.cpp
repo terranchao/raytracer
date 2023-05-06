@@ -36,3 +36,8 @@ Vec3 Vec3::normalized() const
     const float L = (1.f/sqrt((x*x)+(y*y)+(z*z)));
     return {(L*x), (L*y), (L*z)};
 }
+
+Vec3 Vec3::reflected(const Vec3& normal) const
+{
+    return *this - (normal*(2.f*((*this)*normal)));
+}

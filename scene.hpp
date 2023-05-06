@@ -13,7 +13,6 @@ class Scene
 {
 private:
     SDL sdl{SCREEN_WIDTH, SCREEN_HEIGHT};
-    uint32_t cast(const Vec3& dir);
     void write_frame();
 public:
     void run();

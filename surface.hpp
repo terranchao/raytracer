@@ -3,9 +3,11 @@
 
 #include <cstdint>
 
+#define SET_ALPHA 0xff000000
+
 struct Surface
 {
-    uint32_t base_color = 0xff000000; // SDL_PIXELFORMAT_ARGB8888
+    uint32_t base_color = SET_ALPHA; // SDL_PIXELFORMAT_ARGB8888
     float diffuse_constant = 0.f;
     float specular_constant = 0.f;
     float shininess_constant = 0.f;
@@ -16,7 +18,9 @@ struct Surface
         const float& _shininess_constant
     );
     uint32_t get_color(
-        const float& diffuse_intensity, const float& specular_intensity
+        const uint32_t& blend_color,
+        const float& diffuse_intensity,
+        const float& specular_intensity
     ) const;
 };
 
