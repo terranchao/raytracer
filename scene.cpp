@@ -2,20 +2,31 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <tuple>
+#include <unordered_map>
 
 #include "light.hpp"
+#include "material.hpp"
 #include "scene.hpp"
 #include "sdl.hpp"
 #include "sphere.hpp"
 #include "surface.hpp"
 #include "vec3.hpp"
 
+std::unordered_map<
+    const MaterialType, const std::tuple<float, float, float, float>
+> g_materials = {
+    //                      Diffuse Specular Shininess Refractive
+    {MaterialType::Matte,  {    1.f,     0.f,      0.f,       0.f}},
+    {MaterialType::Mirror, {   1.2f,     6.f,     61.f,       0.f}},
+};
+
 static const Sphere g_spheres[] = {
-// Center                   Radius   Color       Diffuse  Specular  Shininess
-  {{ -20.f, -90.f, -480.f},  110.f, {0xffcc4488,     1.f,      0.f,       0.f}},
-  {{ 130.f,   0.f, -460.f},   60.f, {0xff4488cc,    1.2f,      6.f,      61.f}},
-  {{-200.f,   0.f, -550.f},   90.f, {0xff88cc44,     1.f,      0.f,       0.f}},
-  {{ -30.f,  70.f, -510.f},   30.f, {0xff8484cc,    1.2f,      6.f,      61.f}},
+//   Center                     Radius  Color        MaterialType
+    {{ -20.f, -90.f, -480.f},    110.f, {0xffcc4488, MaterialType::Matte}},
+    {{ 130.f,   0.f, -460.f},     60.f, {0xff4488cc, MaterialType::Mirror}},
+    {{-200.f,   0.f, -550.f},     90.f, {0xff88cc44, MaterialType::Matte}},
+    {{ -30.f,  70.f, -510.f},     30.f, {0xff8484cc, MaterialType::Mirror}},
 };
 static const Light g_lights[] = {
 //      Position                 Intensity
@@ -91,11 +102,12 @@ static uint32_t cast(const Vec3& origin, const Vec3& dir, int depth = 0)
         }
 
         // Specular
-        if (nearest->surface.specular_constant > 0.f)
+        if (nearest->surface.material.specular_constant > 0.f)
         {
             const Vec3 light_reflect_dir = light_dir.reflected(normal);
             const float specular_magnitude = powf(
-                light_reflect_dir*dir, nearest->surface.shininess_constant
+                light_reflect_dir*dir,
+                nearest->surface.material.shininess_constant
             );
             if (specular_magnitude > 0.f)
             {
@@ -106,7 +118,7 @@ static uint32_t cast(const Vec3& origin, const Vec3& dir, int depth = 0)
 
     /* Compute color */
     uint32_t blend_color = nearest->surface.base_color;
-    if (nearest->surface.specular_constant > 0.f)
+    if (nearest->surface.material.specular_constant > 0.f)
     {
         // Reflections
         blend_color = cast(

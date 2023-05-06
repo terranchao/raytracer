@@ -5,15 +5,8 @@
 #include "surface.hpp"
 
 Surface::Surface(
-    const uint32_t& _base_color,
-    const float& _diffuse_constant,
-    const float& _specular_constant,
-    const float& _shininess_constant
-) : base_color(_base_color),
-    diffuse_constant(_diffuse_constant),
-    specular_constant(_specular_constant),
-    shininess_constant(_shininess_constant)
-{}
+    const uint32_t& _base_color, const MaterialType& _material_type
+) : base_color(_base_color), material(_material_type) {}
 
 uint32_t Surface::get_color(
     const uint32_t& blend_color,
@@ -34,8 +27,8 @@ uint32_t Surface::get_color(
         b = (b+_b)/2;
     }
     const float scale = (
-        (diffuse_constant*diffuse_intensity) +
-        (specular_constant*specular_intensity)
+        (material.diffuse_constant*diffuse_intensity) +
+        (material.specular_constant*specular_intensity)
     );
     r = (uint32_t)std::min(255.f, (float)r*scale);
     g = (uint32_t)std::min(255.f, (float)g*scale);
