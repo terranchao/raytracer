@@ -1,13 +1,21 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 
+#include "material.hpp"
 #include "sphere.hpp"
 #include "vec3.hpp"
 
 Sphere::Sphere(
-    const Vec3& _center, const float& _radius, const Surface& _surface
-) : center(_center), radius(std::max(0.f, _radius)), surface(_surface)
+    const Vec3& _center,
+    const float& _radius,
+    const uint32_t& _base_color,
+    const MaterialType& _material_type
+) : center(_center),
+    radius(std::max(0.f, _radius)),
+    base_color(_base_color),
+    material(_material_type)
 {
     r2 = (radius*radius);
 }
