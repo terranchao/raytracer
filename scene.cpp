@@ -1,4 +1,5 @@
 
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -46,18 +47,23 @@ static constexpr float RAY_Z = -(float)SCREEN_HEIGHT_HALF/tan(FOV/2);
 static constexpr uint32_t BACKGROUND_COLOR = 0xff222211;
 static constexpr int MAX_REFLECTIONS = 2;
 
-static uint32_t blend_color(const uint32_t& c1, const uint32_t& c2)
+static uint32_t blend(
+    const uint32_t& color1,
+    const uint32_t& color2,
+    const float& percent_of_color1)
 {
-    uint32_t r1 = (c1 & 0x00ff0000) >> 16;
-    uint32_t g1 = (c1 & 0x0000ff00) >> 8;
-    uint32_t b1 = (c1 & 0x000000ff);
-    const uint32_t r2 = (c2 & 0x00ff0000) >> 16;
-    const uint32_t g2 = (c2 & 0x0000ff00) >> 8;
-    const uint32_t b2 = (c2 & 0x000000ff);
-    r1 = (r1+r2)/2;
-    g1 = (g1+g2)/2;
-    b1 = (b1+b2)/2;
-    return (SET_ALPHA|(r1<<16)|(g1<<8)|b1);
+    assert((percent_of_color1 >= 0.f) && (percent_of_color1 <= 1.f));
+    const float percent_of_color2 = (1.f-percent_of_color1);
+    const uint32_t r1 = (color1 & 0x00ff0000) >> 16;
+    const uint32_t g1 = (color1 & 0x0000ff00) >> 8;
+    const uint32_t b1 = (color1 & 0x000000ff);
+    const uint32_t r2 = (color2 & 0x00ff0000) >> 16;
+    const uint32_t g2 = (color2 & 0x0000ff00) >> 8;
+    const uint32_t b2 = (color2 & 0x000000ff);
+    const float r = (percent_of_color1*r1) + (percent_of_color2*r2);
+    const float g = (percent_of_color1*g1) + (percent_of_color2*g2);
+    const float b = (percent_of_color1*b1) + (percent_of_color2*b2);
+    return (SET_ALPHA|((uint32_t)r<<16)|((uint32_t)g<<8)|(uint32_t)b);
 }
 
 static uint32_t add_lighting(
@@ -155,9 +161,13 @@ static uint32_t cast(const Vec3& origin, const Vec3& dir, int depth = 0)
     if (nearest->material.specular_constant > 0.f)
     {
         // Reflections
-        color = blend_color(nearest->base_color, cast(
-            intersect, dir.reflected(normal), depth+1
-        ));
+        color = blend(
+            color,
+            cast(
+                intersect, dir.reflected(normal), depth+1
+            ),
+            0.8f
+        );
     }
     return add_lighting(
         color,
