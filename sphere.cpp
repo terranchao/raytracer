@@ -30,7 +30,7 @@ bool Sphere::is_intersected_by(
     if (tca < 0.f) return false;
     const float d2 = (L*L)-(tca*tca);
     if (d2 > r2) return false;
-    const float thc = sqrt(r2-d2);
+    const float thc = sqrtf(r2-d2);
     const float t0 = (tca-thc);
     const float t1 = (tca+thc);
     if (t0 > 0.f)
@@ -45,7 +45,7 @@ bool Sphere::is_intersected_by(
     }
     else
     {
-        distance = t0;
+        distance = -1.f;
         return false;
     }
 }

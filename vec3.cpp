@@ -33,7 +33,7 @@ Vec3 Vec3::operator*(const float& s) const
 
 Vec3 Vec3::normalized() const
 {
-    const float L = (1.f/sqrt((x*x)+(y*y)+(z*z)));
+    const float L = (1.f/sqrtf((x*x)+(y*y)+(z*z)));
     return {(L*x), (L*y), (L*z)};
 }
 
