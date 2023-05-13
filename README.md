@@ -5,6 +5,11 @@ This project is a ray tracing demonstration written in C++. A 3D environment
 is virtualized and rendered, and the result is displayed in a window using the
 [SDL development library](https://www.libsdl.org/).
 
+Click [here](https://github.com/terranchao/raytracer/wiki/Progress-slideshow)
+for a slideshow of development screenshots.
+
+![14](https://github.com/terranchao/raytracer/assets/5587757/cfba7648-291c-471f-820d-0228eab53799)
+
 ## Features
 
 ### 3D visuals
@@ -20,16 +25,30 @@ is virtualized and rendered, and the result is displayed in a window using the
 - Reflections
 - Refractions (TODO)
 
-### FPS counter
-
-A frame per second count is written to the terminal screen in real time using
-the [ncurses](https://en.wikipedia.org/wiki/Ncurses) library.
-
 ### CPU-only
 
 As an exercise, all graphics computations (aside from SDL rendering) are run on
-the CPU instead of the GPU. [OpenMP](https://www.openmp.org/) is leveraged to
-parallelize the ray casting.
+the CPU instead of the GPU. No external graphics libraries are used.
+
+Although efforts have been made to improve performance, it is not a high
+priority of this exercise. We have already excluded the benefits of hardware
+acceleration. The main goal here is to provide a simple demonstration of how ray
+tracing actually works.
+
+Click [here](https://github.com/terranchao/raytracer/blob/main/scene.cpp#L188)
+to view the the start of the code for the graphics computation logic.
+`Scene::write_frame()` generates a camera ray for each pixel in the display, and
+`cast()` follows, or "traces", each ray in order to compute the color of its
+corresponding pixel.
+
+[OpenMP](https://www.openmp.org/) is leveraged to parallelize the ray casting.
+
+### FPS counter
+
+A frame per second count is written to the terminal screen in real time using
+the [ncurses](https://en.wikipedia.org/wiki/Ncurses) library. Checking this
+value is the simplest way to estimate performance. Observed values may vary
+across different runtime machines/environments.
 
 ## Run it yourself
 
