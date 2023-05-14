@@ -16,7 +16,7 @@
 std::unordered_map<
     const MaterialType, const std::tuple<float, float, float, float>
 > g_materials = {
-    //                      Diffuse Specular Shininess Refractive
+//   MaterialType           Diffuse Specular Shininess Refractive
     {MaterialType::Matte,  {    1.f,     0.f,      0.f,       0.f}},
     {MaterialType::Mirror, {   1.2f,     6.f,     61.f,       0.f}},
 };
@@ -50,7 +50,8 @@ static constexpr int MAX_REFLECTIONS = 2;
 static uint32_t blend(
     const uint32_t& color1,
     const uint32_t& color2,
-    const float& percent_of_color1)
+    const float& percent_of_color1
+)
 {
     assert((percent_of_color1 >= 0.f) && (percent_of_color1 <= 1.f));
     const float percent_of_color2 = (1.f-percent_of_color1);

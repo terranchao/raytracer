@@ -1,5 +1,5 @@
 
-# A simple ray tracing program
+# A ray tracing program
 
 This project is a ray tracing demonstration written in C++. A 3D environment
 is virtualized and rendered, and the result is displayed in a window using the
@@ -30,7 +30,7 @@ for a slideshow of development screenshots.
 As an exercise, all graphics computations (aside from SDL rendering) are run on
 the CPU instead of the GPU. No external graphics libraries are used.
 
-Although efforts have been made to improve performance, it is not a high
+Although efforts have been made to improve performance, it is a secondary
 priority of this exercise. We have already excluded the benefits of hardware
 acceleration. The main goal here is to provide a simple demonstration of how ray
 tracing actually works.

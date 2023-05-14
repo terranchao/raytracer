@@ -45,7 +45,6 @@ bool Sphere::is_intersected_by(
     }
     else
     {
-        distance = -1.f;
         return false;
     }
 }
