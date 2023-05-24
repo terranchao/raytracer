@@ -74,7 +74,7 @@ WSL.
 
 3. **Build**
 
-    CMake is used to build this project.
+    CMake (GCC) is used to build this project.
     ```bash
     cd raytracer
     cmake -B build
